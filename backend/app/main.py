@@ -4,12 +4,16 @@ from app.db.base import Base
 
 # 让模型被 import，SQLAlchemy 才知道要创建哪些表
 from app.models.user import User  # noqa: F401
+from app.models.file import File  # noqa
 from app.routes.auth import router as auth_router
+from app.routes.files import router as files_router
+
 
 app = FastAPI(title="Smart Assistant API")
 
 
 app.include_router(auth_router)
+app.include_router(files_router)
 
 
 @app.get("/health")
