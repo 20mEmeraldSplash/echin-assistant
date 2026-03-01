@@ -63,3 +63,33 @@ uvicorn app.main:app --reload --port 8000
 | 启动后端           | `cd backend` → `uvicorn app.main:app --reload --port 8000` |
 
 每次本地开发前：**先确认 Docker 已启动并 `docker compose up -d`，再在 `backend` 目录下跑 uvicorn。**
+
+---
+
+## 本地测试接口（不用记 token）
+
+用 Swagger 测接口时，不必记旧 token，用固定测试账号随时重新拿即可。
+
+### 推荐：固定测试账号 + Swagger Authorize
+
+1. 用固定账号先 **signup 一次**（只需一次），例如：
+   - Email: `test1@example.com`
+   - Password: `123456`
+2. 以后每次测试：
+   - 打开 <http://127.0.0.1:8000/docs>
+   - 调 **POST /auth/login**，用上面账号登录，拿到新 token
+   - 点右上角 **Authorize**，把 token 粘进去
+   - 之后所有需要登录的接口都会自动带 token
+
+这样不用保存 token，每次都能重新生成，也符合真实流程（token 会过期）。
+
+### 可选：清空数据库重新来
+
+本地玩乱了想从头来时，可以删掉数据库数据（**会删掉所有数据**）：
+
+```bash
+docker compose down -v
+docker compose up -d
+```
+
+`-v` 会删掉 postgres 的 volume，数据库全新；再启动后端即可。之后用同一组测试账号重新 signup 一次即可。
