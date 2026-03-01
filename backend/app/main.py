@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from app.db.session import engine
 from app.db.base import Base
+from app.models.chunk import Chunk
 
 # 让模型被 import，SQLAlchemy 才知道要创建哪些表
 from app.models.user import User  # noqa: F401
