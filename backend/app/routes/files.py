@@ -8,6 +8,9 @@ from app.models.file import File
 from app.auth.deps import get_current_user
 from app.models.user import User
 
+from typing import List
+from app.schemas.files import FileOut
+
 router = APIRouter(prefix="/files", tags=["files"])
 
 UPLOAD_DIR = "storage"
@@ -46,3 +49,14 @@ async def upload_file(
     await db.refresh(new_file)
 
     return {"file_id": new_file.id, "filename": new_file.filename}
+
+@router.get("", response_model=List[FileOut])
+async def list_files(
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    res = await db.execute(
+        select(File).where(File.user_id == current_user.id).order_by(File.id.desc())
+    )
+    files = res.scalars().all()
+    return files
