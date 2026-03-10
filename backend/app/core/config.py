@@ -8,5 +8,8 @@ class Settings(BaseSettings):
     JWT_SECRET: str
     JWT_ALG: str = "HS256"
 
+    OPENAI_API_KEY: str
+    OPENAI_MODEL: str = "gpt-4.1-mini"
+
 
 settings = Settings()

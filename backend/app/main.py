@@ -8,6 +8,7 @@ from app.models.user import User  # noqa: F401
 from app.models.file import File  # noqa
 from app.routes.auth import router as auth_router
 from app.routes.files import router as files_router
+from app.routes.chat import router as chat_router
 
 
 app = FastAPI(title="Smart Assistant API")
@@ -15,6 +16,7 @@ app = FastAPI(title="Smart Assistant API")
 
 app.include_router(auth_router)
 app.include_router(files_router)
+app.include_router(chat_router)
 
 
 @app.get("/health")
