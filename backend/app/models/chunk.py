@@ -1,4 +1,4 @@
-from sqlalchemy import ForeignKey, String, Text
+from sqlalchemy import ForeignKey, String, Text, JSON
 from sqlalchemy.orm import Mapped, mapped_column
 from app.db.base import Base
 
@@ -18,6 +18,7 @@ class Chunk(Base):
     # 预留：后面加 embedding vector
     # embedding: Mapped[list[float]] = mapped_column(...)
     source: Mapped[str] = mapped_column(String(50), default="pdf")
+    embedding: Mapped[list | None] = mapped_column(JSON, nullable=True)
 
     def chunk_text(text: str, *, chunk_size: int = 1000, overlap: int = 150) -> list[str]:
         """

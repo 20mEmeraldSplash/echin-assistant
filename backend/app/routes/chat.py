@@ -1,7 +1,9 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
+import math
 
+from app.services.embedding_service import get_embedding
 from app.db.session import get_db
 from app.auth.deps import get_current_user
 from app.models.user import User
@@ -12,6 +14,13 @@ from app.services.llm_service import generate_answer
 
 router = APIRouter(prefix="/chat", tags=["chat"])
 
+def cosine_similarity(a: list[float], b: list[float]) -> float:
+    dot = sum(x * y for x, y in zip(a, b))
+    norm_a = math.sqrt(sum(x * x for x in a))
+    norm_b = math.sqrt(sum(y * y for y in b))
+    if norm_a == 0 or norm_b == 0:
+        return 0.0
+    return dot / (norm_a * norm_b)
 
 @router.post("", response_model=ChatOut)
 async def chat(
@@ -45,21 +54,16 @@ async def chat(
     chunks = res.scalars().all()
 
     # 3) 打分：出现关键词次数越多分越高（超简单但能用）
-    def score(text: str, query: str) -> int:
-        terms = [t for t in query.lower().split() if t]
-        tl = text.lower()
-        return sum(tl.count(t) for t in terms)
+    query_embedding = get_embedding(q)
 
-    ranked = sorted(
-        chunks,
-        key=lambda c: score(c.text, q),
-        reverse=True
-    )
+    scored_chunks = []
+    for c in chunks:
+        if c.embedding:
+            sim = cosine_similarity(query_embedding, c.embedding)
+            scored_chunks.append((sim, c))
 
-    top = [c for c in ranked if score(c.text, q) > 0][:5]
-    if not top:
-        # 没找到就返回前两段，至少有东西可看
-        top = ranked[:2]
+    ranked = sorted(scored_chunks, key=lambda x: x[0], reverse=True)
+    top = [c for _, c in ranked[:5]]
 
     citations = []
     for c in top:

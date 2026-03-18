@@ -15,6 +15,8 @@ from app.services.chunking import chunk_text
 from typing import List
 from app.schemas.files import FileOut
 
+from app.services.embedding_service import get_embedding
+
 from sqlalchemy import delete
 
 router = APIRouter(prefix="/files", tags=["files"])
@@ -103,6 +105,8 @@ async def process_pdf(
         for page_idx, page_text in enumerate(pages, start=1):
             chunks = chunk_text(page_text, chunk_size=1000, overlap=150)
             for ci, ct in enumerate(chunks):
+                emb = get_embedding(ct)
+
                 db.add(
                     Chunk(
                         user_id=current_user.id,
@@ -111,6 +115,7 @@ async def process_pdf(
                         chunk_index=ci,
                         text=ct,
                         source="pdf",
+                        embedding=emb,
                     )
                 )
             total_chunks += len(chunks)
