@@ -1,8 +1,20 @@
 # EChin Assistant
 
-Smart Assistant 后端 API（FastAPI + PostgreSQL）。
+Smart Assistant：上传 PDF、基于文档对话。后端 FastAPI + PostgreSQL，前端 React。
 
 ## 本地运行
+
+### 0. 前端（可选，与后端二选一或同时开）
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+浏览器打开 <http://127.0.0.1:5173>。前端会通过 Vite 代理把 `/api` 请求转发到后端 `http://127.0.0.1:8000`，所以需先启动后端。
+
+---
 
 ### 1. 启动 Docker（数据库和 Redis）
 
@@ -50,6 +62,8 @@ uvicorn app.main:app --reload --port 8000
 - 默认地址：<http://127.0.0.1:8000>
 - 接口文档：<http://127.0.0.1:8000/docs>
 - 健康检查：<http://127.0.0.1:8000/health>
+
+前后端同时跑时：前端 <http://127.0.0.1:5173> 登录/注册，左侧上传并处理 PDF，右侧选择文档后对话。
 
 ---
 
