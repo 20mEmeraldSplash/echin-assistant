@@ -22,7 +22,22 @@
 .dashboard-user {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.dashboard-pwd {
+  padding: 0.4rem 0.75rem;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+.dashboard-pwd:hover {
+  color: var(--text);
+  border-color: var(--accent);
 }
 
 .dashboard-email {
@@ -306,5 +321,92 @@
 
 .chat-send:disabled {
   opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* 修改密码弹窗 */
+.pwd-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1rem;
+}
+
+.pwd-modal {
+  width: 100%;
+  max-width: 400px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1.5rem;
+}
+
+.pwd-modal-title {
+  margin: 0 0 0.5rem;
+  font-size: 1.15rem;
+}
+
+.pwd-modal-hint {
+  margin: 0 0 1rem;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.pwd-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.pwd-input {
+  padding: 0.65rem 0.85rem;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text);
+}
+
+.pwd-input:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.pwd-actions {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: flex-end;
+  margin-top: 0.5rem;
+}
+
+.pwd-cancel {
+  padding: 0.5rem 1rem;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--muted);
+}
+
+.pwd-cancel:hover {
+  color: var(--text);
+}
+
+.pwd-save {
+  padding: 0.5rem 1rem;
+  background: var(--accent);
+  border: none;
+  border-radius: 8px;
+  color: #fff;
+}
+
+.pwd-save:hover:not(:disabled) {
+  background: var(--accent-hover);
+}
+
+.pwd-save:disabled {
+  opacity: 0.6;
   cursor: not-allowed;
 }

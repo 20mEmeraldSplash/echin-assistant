@@ -65,6 +65,8 @@ uvicorn app.main:app --reload --port 8000
 
 前后端同时跑时：前端 <http://127.0.0.1:5173> 登录/注册，左侧上传并处理 PDF，右侧选择文档后对话。
 
+**修改密码**：登录后右上角「修改密码」，或调用 `POST /auth/change-password`（需 Bearer，body：`current_password`、`new_password`，新密码至少 6 位）。**未登录的「忘记密码」**需要邮件发重置链接，当前未实现。
+
 ---
 
 ## 常用命令备忘

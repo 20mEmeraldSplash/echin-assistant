@@ -54,6 +54,29 @@ export async function me() {
   return res.json()
 }
 
+function formatApiError(d: { detail?: unknown }): string {
+  const { detail } = d
+  if (typeof detail === 'string') return detail
+  if (Array.isArray(detail)) {
+    return detail.map((x: { msg?: string }) => x.msg ?? JSON.stringify(x)).join('; ')
+  }
+  return '请求失败'
+}
+
+export async function changePassword(currentPassword: string, newPassword: string): Promise<void> {
+  const res = await authFetch('/auth/change-password', {
+    method: 'POST',
+    body: JSON.stringify({
+      current_password: currentPassword,
+      new_password: newPassword,
+    }),
+  })
+  if (!res.ok) {
+    const d = await res.json().catch(() => ({}))
+    throw new Error(formatApiError(d))
+  }
+}
+
 export async function listFiles(): Promise<{ id: number; filename: string; status: string }[]> {
   const res = await authFetch('/files')
   if (!res.ok) throw new Error('获取文件列表失败')
