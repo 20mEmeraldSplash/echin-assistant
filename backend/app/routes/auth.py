@@ -4,7 +4,7 @@ from sqlalchemy import select
 
 from app.db.session import get_db
 from app.models.user import User
-from app.schemas.auth import SignupIn, LoginIn, TokenOut, MeOut
+from app.schemas.auth import SignupIn, LoginIn, TokenOut, MeOut, ChangePasswordIn, MessageOut
 from app.auth.security import hash_password, verify_password, create_access_token
 from app.auth.deps import get_current_user
 
@@ -41,3 +41,25 @@ async def login(data: LoginIn, db: AsyncSession = Depends(get_db)):
 @router.get("/me", response_model=MeOut)
 async def me(current_user: User = Depends(get_current_user)):
     return MeOut(id=current_user.id, email=current_user.email)
+
+
+@router.post("/change-password", response_model=MessageOut)
+async def change_password(
+    data: ChangePasswordIn,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """已登录用户修改密码（需输入当前密码）。忘记密码未登录场景需邮件重置，本接口不包含。"""
+    if not verify_password(data.current_password, current_user.password_hash):
+        raise HTTPException(status_code=400, detail="当前密码不正确")
+
+    if data.current_password == data.new_password:
+        raise HTTPException(status_code=400, detail="新密码不能与当前密码相同")
+
+    try:
+        current_user.password_hash = hash_password(data.new_password)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e)) from e
+
+    await db.commit()
+    return MessageOut(message="密码已更新")

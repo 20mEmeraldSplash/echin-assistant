@@ -16,6 +16,11 @@ export default function Dashboard() {
   const [messages, setMessages] = useState<Message[]>([])
   const [input, setInput] = useState('')
   const [sending, setSending] = useState(false)
+  const [pwdOpen, setPwdOpen] = useState(false)
+  const [pwdCurrent, setPwdCurrent] = useState('')
+  const [pwdNew, setPwdNew] = useState('')
+  const [pwdConfirm, setPwdConfirm] = useState('')
+  const [pwdSubmitting, setPwdSubmitting] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
   const loadFiles = async () => {
@@ -89,12 +94,89 @@ export default function Dashboard() {
 
   const readyFiles = files.filter((f) => f.status === 'READY')
 
+  const closePwdModal = () => {
+    setPwdOpen(false)
+    setPwdCurrent('')
+    setPwdNew('')
+    setPwdConfirm('')
+  }
+
+  const handleChangePassword = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (pwdNew !== pwdConfirm) {
+      alert('两次输入的新密码不一致')
+      return
+    }
+    if (pwdNew.length < 6) {
+      alert('新密码至少 6 位')
+      return
+    }
+    setPwdSubmitting(true)
+    try {
+      await api.changePassword(pwdCurrent, pwdNew)
+      alert('密码已更新，请使用新密码登录')
+      closePwdModal()
+      logout()
+    } catch (err) {
+      alert(err instanceof Error ? err.message : '修改失败')
+    } finally {
+      setPwdSubmitting(false)
+    }
+  }
+
   return (
     <div className="dashboard">
+      {pwdOpen && (
+        <div className="pwd-overlay" role="presentation" onClick={closePwdModal}>
+          <div className="pwd-modal" role="dialog" onClick={(e) => e.stopPropagation()}>
+            <h2 className="pwd-modal-title">修改密码</h2>
+            <p className="pwd-modal-hint">需输入当前密码。修改成功后会退出登录。</p>
+            <form onSubmit={handleChangePassword} className="pwd-form">
+              <input
+                type="password"
+                placeholder="当前密码"
+                value={pwdCurrent}
+                onChange={(e) => setPwdCurrent(e.target.value)}
+                required
+                className="pwd-input"
+              />
+              <input
+                type="password"
+                placeholder="新密码（至少 6 位）"
+                value={pwdNew}
+                onChange={(e) => setPwdNew(e.target.value)}
+                required
+                minLength={6}
+                className="pwd-input"
+              />
+              <input
+                type="password"
+                placeholder="确认新密码"
+                value={pwdConfirm}
+                onChange={(e) => setPwdConfirm(e.target.value)}
+                required
+                className="pwd-input"
+              />
+              <div className="pwd-actions">
+                <button type="button" className="pwd-cancel" onClick={closePwdModal}>
+                  取消
+                </button>
+                <button type="submit" className="pwd-save" disabled={pwdSubmitting}>
+                  {pwdSubmitting ? '保存中…' : '保存'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
       <header className="dashboard-header">
         <h1 className="dashboard-title">EChin Assistant</h1>
         <div className="dashboard-user">
           <span className="dashboard-email">{user?.email}</span>
+          <button type="button" onClick={() => setPwdOpen(true)} className="dashboard-pwd">
+            修改密码
+          </button>
           <button type="button" onClick={logout} className="dashboard-logout">
             退出
           </button>
